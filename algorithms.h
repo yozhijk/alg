@@ -1,6 +1,14 @@
 #ifndef ALGORITHMS_H
 #define ALGORITHMS_H
 
+
+template<typename Iter> bool IsSorted(Iter first, Iter last)
+{
+	for (Iter i=first+1;i!=last;++i)
+		if (*i < *(i-1)) return false;
+	return true;
+}
+
 /*-----------------------------------------------------------------------------
 Insertion sort (Cormen et al.)
 -------------------------------------------------------------------------------*/
@@ -18,7 +26,7 @@ template <typename Iter> void InsertionSort(Iter l, Iter r)
 		}
 		*(back-1) = val;
 	}
-	while (tmp > l);
+	while (tmp != l);
 }
 
 // debug insertion sort
@@ -39,7 +47,7 @@ template <typename Iter> Iter Partition(Iter l, Iter r)
 {
 	Iter lt = l;
 
-	for(Iter gt = lt + 1; gt < r; ++gt)
+	for(Iter gt = lt + 1; gt != r; ++gt)
 	{
 		if (*gt < *l)
 		{

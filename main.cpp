@@ -17,7 +17,13 @@ int const MAX_SIZE = 100000;
 	timer.start(); \
 	func(first, last); \
 	timer.stop(); \
+	if (!IsSorted(v.begin(), v.end()))\
+	{\
+		cout << "\nCATASTROPHE: incorrect output\n\n";\
+		exit(-1); \
+	}\
 }
+
 
 
 int main(int argc, char** argv)
