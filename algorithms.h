@@ -1,6 +1,8 @@
 #ifndef ALGORITHMS_H
 #define ALGORITHMS_H
 
+#include <cstdlib>
+#include <ctime>
 #include <cassert>
 
 
@@ -36,7 +38,7 @@ template <typename Iter> void InsertionSort(Iter l, Iter r)
 
 
 /*-----------------------------------------------------------------------------
-Tail-recursive quicksort implementation (Cormen et al.)
+Tail-recursive randomized quicksort implementation (Cormen et al.)
 -------------------------------------------------------------------------------*/
 template <typename T> void Swap(T& a, T& b)
 {
@@ -47,8 +49,13 @@ template <typename T> void Swap(T& a, T& b)
 
 template <typename Iter> Iter Partition(Iter l, Iter r)
 {
-	Iter lt = l;
+	unsigned size = r - l;
+	unsigned pivot = rand() % size;
 
+	Swap(*l, *(l + pivot));
+	
+	Iter lt = l;
+	
 	for(Iter gt = lt + 1; gt != r; ++gt)
 	{
 		if (*gt < *l)
@@ -63,6 +70,7 @@ template <typename Iter> Iter Partition(Iter l, Iter r)
 
 template <typename Iter> void QuickSort(Iter l, Iter r)
 {
+	srand((unsigned int)time(NULL));
 	while (l < r)
 	{
 		Iter q = Partition(l,r);
@@ -85,7 +93,6 @@ public:
 
 private:
 	bool     IsLeaf(unsigned i) { return Child1(i) >= size_ && Child2(i) >= size_; }
-	unsigned Parent(unsigned i) { return (i >> 1) - 1; }
 	unsigned Child1(unsigned i) { return ((i << 1) + 1); }
 	unsigned Child2(unsigned i) { return ((i << 1) + 2); }
 

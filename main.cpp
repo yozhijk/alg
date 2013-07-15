@@ -7,13 +7,13 @@
 
 using namespace std;
 
-int const NUM_TEST = 5;
+int const NUM_TEST = 20;
 int const MIN_SIZE = 100;
-int const MAX_SIZE = 100000;
+int const MAX_SIZE = 10000000;
 
 #define RUN_TEST(func,first,last,timer) \
 { \
-	generate(first, last, []() { return rand() % 1000; }); \
+	generate(first, last, []() { return rand() % 100000; }); \
 	timer.start(); \
 	func(first, last); \
 	timer.stop(); \
@@ -28,30 +28,32 @@ int const MAX_SIZE = 100000;
 
 int main(int argc, char** argv)
 {
-	srand(12786324);
+	srand((unsigned int)time(NULL));
 
 	CPUTimer timer;
 	vector<int> v;
 	
 	int increment = (MAX_SIZE - MIN_SIZE)/NUM_TEST;
-
 	for (int i=0;i<NUM_TEST;++i)
 	{
 		int size = MIN_SIZE + i*increment;
 		v.resize(size);
 
-		RUN_TEST(InsertionSort, v.begin(), v.end(), timer);
+		// This is too slow on large input
+		//RUN_TEST(InsertionSort, v.begin(), v.end(), timer);
 
 		cout << size << ";";
-		cout << timer.elapsed() << ";" ;
+		//cout << timer.elapsed() << ";" ;
 
 		RUN_TEST(QuickSort, v.begin(), v.end(), timer);
 
-		cout << timer.elapsed() << ";\n" ;
+		cout << timer.elapsed() << ";" ;
 
 		RUN_TEST(HeapSort, v.begin(), v.end(), timer);
 
-		cout << timer.elapsed() << ";\n" ;
+		cout << timer.elapsed() << ";" ;
+
+		cout << "\n";
 	}
 
 
