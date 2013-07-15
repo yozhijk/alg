@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 
 	CPUTimer timer;
 	vector<int> v;
-
+	
 	int increment = (MAX_SIZE - MIN_SIZE)/NUM_TEST;
 
 	for (int i=0;i<NUM_TEST;++i)
@@ -48,7 +48,13 @@ int main(int argc, char** argv)
 		RUN_TEST(QuickSort, v.begin(), v.end(), timer);
 
 		cout << timer.elapsed() << ";\n" ;
+
+		RUN_TEST(HeapSort, v.begin(), v.end(), timer);
+
+		cout << timer.elapsed() << ";\n" ;
 	}
+
+
 
 	return 0;
 }
