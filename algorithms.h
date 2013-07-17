@@ -1,9 +1,11 @@
 #ifndef ALGORITHMS_H
 #define ALGORITHMS_H
 
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
+#include <iterator>
 
 
 template<typename Iter> bool IsSorted(Iter first, Iter last)
@@ -50,32 +52,43 @@ template <typename T> void Swap(T& a, T& b)
 template <typename Iter> Iter Partition(Iter l, Iter r)
 {
 	unsigned size = r - l;
-	unsigned pivot = rand() % size;
+	unsigned pivot = size >> 1;
 
-	Swap(*l, *(l + pivot));
+	auto pivotVal = *(l + pivot);
+
+	std::swap(*l, *(l + pivot));
 	
 	Iter lt = l;
 	
-	for(Iter gt = lt + 1; gt != r; ++gt)
+	for(Iter gt = lt + 1; gt < r; ++gt)
 	{
 		if (*gt < *l)
 		{
-			Swap(*(++lt), *gt);
+			std::swap(*(++lt), *gt);
 		}
 	}
 
-	Swap(*l, *lt);
+	std::swap(*l, *lt);
+
 	return lt;
 }
 
 template <typename Iter> void QuickSort(Iter l, Iter r)
 {
-	srand((unsigned int)time(NULL));
-	while (l < r)
+	while (l < r - 1)
 	{
-		Iter q = Partition(l,r);
-		QuickSort(l,q);
-		l = q + 1;
+		Iter q = Partition(l, r);
+		
+		if (q - l > r - q + 1)
+		{
+			QuickSort(q + 1, r);
+			r = q;
+		}
+		else
+		{
+			QuickSort(l, q);
+			l = q + 1;
+		}
 	}
 }
 
@@ -140,7 +153,7 @@ template <typename Iter> inline void Heap<Iter>::Heapify (unsigned i)
 
 	if (max != i)
 	{
-		Swap(*(first_ + max), *(first_ + i));
+		std::swap(*(first_ + max), *(first_ + i));
 		Heapify(max);
 	}
 }
@@ -162,7 +175,7 @@ template <typename Iter> inline void Heap<Iter>::Sort()
 	for (; size_ > 1; --size_)
 	{
 		Heapify(0);
-		Swap(*(first_ + size_ - 1), *first_);
+		std::swap(*(first_ + size_ - 1), *first_);
 	}
 
 	size_ = oldSize;
