@@ -45,6 +45,10 @@ int main(int argc, char** argv)
 		cout << size << ";";
 		//cout << timer.elapsed() << ";" ;
 
+		RUN_TEST(std::sort, v.begin(), v.end(), timer);
+
+		cout << timer.elapsed() << ";" ;
+
 		RUN_TEST(QuickSort, v.begin(), v.end(), timer);
 
 		cout << timer.elapsed() << ";" ;
