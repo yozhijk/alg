@@ -6,6 +6,7 @@
 #include <ctime>
 #include <cassert>
 #include <iterator>
+#include <future>
 
 
 template<typename Iter> bool IsSorted(Iter first, Iter last)
@@ -32,7 +33,7 @@ template <typename Iter> void InsertionSort(Iter l, Iter r)
 		}
 		*(back-1) = val;
 	}
-	while (tmp != l);
+	while (tmp > l);
 }
 
 // debug insertion sort
@@ -42,27 +43,28 @@ template <typename Iter> void InsertionSort(Iter l, Iter r)
 /*-----------------------------------------------------------------------------
 Tail-recursive randomized quicksort implementation (Cormen et al.)
 -------------------------------------------------------------------------------*/
-template <typename T> void Swap(T& a, T& b)
+template <typename T> inline void Swap(T& a, T& b)
 {
 	T t = a;
 	a = b;
 	b = t;
 }
 
-template <typename Iter> Iter Partition(Iter l, Iter r)
+template <typename Iter> inline Iter Partition(Iter l, Iter r)
 {
-	unsigned size = r - l;
-	unsigned pivot = size >> 1;
-
-	auto pivotVal = *(l + pivot);
-
-	std::swap(*l, *(l + pivot));
+	size_t size = r - l;
+	size_t med = size >> 1;
+    
+    if (*(r-1) < *l) std::swap(*l, *(r - 1));
+    if (*(r-1) < *(l + med)) std::swap(*(r-1), *(l + med));
+    if (*l < *(l + med)) std::swap(*l, *(l + med));
 	
 	Iter lt = l;
+    auto val = *l;
 	
 	for(Iter gt = lt + 1; gt < r; ++gt)
 	{
-		if (*gt < *l)
+		if (*gt < val)
 		{
 			std::swap(*(++lt), *gt);
 		}
@@ -72,6 +74,7 @@ template <typename Iter> Iter Partition(Iter l, Iter r)
 
 	return lt;
 }
+
 
 template <typename Iter> void QuickSort(Iter l, Iter r)
 {
@@ -91,6 +94,55 @@ template <typename Iter> void QuickSort(Iter l, Iter r)
 		}
 	}
 }
+
+#define CHUNK_SIZE 16
+#define PAR_CHUNK 4096
+
+
+template <typename Iter> inline void HybridSort(Iter l, Iter r)
+{
+	if (l < r - 1)
+	{
+        Iter q = Partition(l, r);
+        
+        if (r - q + 1 < CHUNK_SIZE)
+        {
+            InsertionSort(q + 1, r);
+        }
+        else if (r - q + 1 > PAR_CHUNK)
+        {
+            auto future = std::async(std::launch::async, [&]()
+                                            {
+                                                HybridSort(q + 1, r);
+                                            });
+            
+            if (q - l < CHUNK_SIZE)
+            {
+                InsertionSort(l, q);
+            }
+            else
+            {
+                HybridSort(l, q);
+            }
+            return;
+        }
+        else
+        {
+            HybridSort(q + 1, r);
+        }
+        
+        if (q - l < CHUNK_SIZE)
+        {
+            InsertionSort(l, q);
+        }
+        else
+        {
+            HybridSort(l, q);
+        }
+    }
+}
+
+
 
 /*-----------------------------------------------------------------------------
 Heap sort (Cormen at al.), RA iterators only
@@ -115,7 +167,7 @@ private:
 
 
 	Iter first_;
-	unsigned size_; 
+	size_t size_;
 };
 
 template <typename Iter> void HeapSort(Iter l, Iter r)
@@ -160,11 +212,12 @@ template <typename Iter> inline void Heap<Iter>::Heapify (unsigned i)
 
 template <typename Iter> inline void Heap<Iter>::BuildMaxHeap()
 {
-	unsigned oldSize_ = size_;
+	size_t oldSize = size_;
 	for (int i = (size_ >> 1)-1;i >= 0;--i)
 	{
 		Heapify(i);
 	}
+    size_ = oldSize;
 }
 
 template <typename Iter> inline void Heap<Iter>::Sort()

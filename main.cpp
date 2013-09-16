@@ -7,21 +7,26 @@
 
 using namespace std;
 
-int const NUM_TEST = 20;
-int const MIN_SIZE = 100;
+int const NUM_ITER = 5;
+int const NUM_TEST = 1;
+int const MIN_SIZE = 10000000;
 int const MAX_SIZE = 10000000;
 
-#define RUN_TEST(func,first,last,timer) \
+#define RUN_TEST(func,first,last,timer,iters) \
 { \
-	generate(first, last, []() { return rand() % 100000; }); \
+    elapsed=0;\
+    for (int i=0;i<iters;++i){\
+	generate(first, last, []() { return rand(); }); \
 	timer.start(); \
 	func(first, last); \
 	timer.stop(); \
+    elapsed+=timer.elapsed();\
 	if (!IsSorted(v.begin(), v.end()))\
 	{\
 		cout << "\nCATASTROPHE: incorrect output\n\n";\
 		exit(-1); \
-	}\
+	}}\
+    elapsed /= iters;\
 }
 
 
@@ -32,6 +37,8 @@ int main(int argc, char** argv)
 
 	CPUTimer timer;
 	vector<int> v;
+    
+    float elapsed = 0;
 	
 	int increment = (MAX_SIZE - MIN_SIZE)/NUM_TEST;
 	for (int i=0;i<NUM_TEST;++i)
@@ -42,20 +49,20 @@ int main(int argc, char** argv)
 		// This is too slow on large input
 		//RUN_TEST(InsertionSort, v.begin(), v.end(), timer);
 
-		cout << size << ";";
+		//cout << size << ";";
 		//cout << timer.elapsed() << ";" ;
 
-		RUN_TEST(std::sort, v.begin(), v.end(), timer);
+		RUN_TEST(std::sort, v.begin(), v.end(), timer, NUM_ITER);
 
-		cout << timer.elapsed() << ";" ;
+		cout << elapsed << ";" ;
 
-		RUN_TEST(QuickSort, v.begin(), v.end(), timer);
+		RUN_TEST(HybridSort, v.begin(), v.end(), timer, NUM_ITER);
 
-		cout << timer.elapsed() << ";" ;
-
-		RUN_TEST(HeapSort, v.begin(), v.end(), timer);
-
-		cout << timer.elapsed() << ";" ;
+		cout << elapsed << ";";
+        
+        RUN_TEST(QuickSort, v.begin(), v.end(), timer, NUM_ITER);
+        
+		cout << elapsed << ";";
 
 		cout << "\n";
 	}
